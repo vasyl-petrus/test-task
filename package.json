@@ -10,8 +10,12 @@
     "@types/node": "^12.12.62",
     "@types/react": "^16.9.49",
     "@types/react-dom": "^16.9.8",
+    "@types/react-paginate": "^6.2.1",
+    "bootstrap": "^4.5.2",
+    "lodash": "^4.17.20",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-paginate": "^6.5.0",
     "react-scripts": "3.4.3",
     "typescript": "^3.7.5"
   },
@@ -35,5 +39,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.161"
   }
 }
