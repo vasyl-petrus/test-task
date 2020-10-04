@@ -2,6 +2,7 @@ import React from 'react';
 
 export default (props: { rowData: any }) => (
   <section>
+    <hr />
     <p>
       Выбран пользователь{' '}
       <b>{`${props.rowData.firstName} ${props.rowData.lastName}`}</b>
@@ -9,7 +10,10 @@ export default (props: { rowData: any }) => (
     <p>
       Описание:
       <br />
-      <textarea defaultValue={props.rowData.description} />
+      <textarea
+        style={{ width: '50%', height: '100px' }}
+        defaultValue={props.rowData.description}
+      />
     </p>
     <p>
       Адрес проживания: <b>{props.rowData.address.streetAddress}</b>

@@ -7,6 +7,7 @@ import Table from './components/Table';
 import DetailRowInfo from './components/DetailRowInfo';
 import ModeSelector from './components/ModeSelector';
 import Search from './components/Search';
+import './index.css';
 
 interface Props {}
 interface State {

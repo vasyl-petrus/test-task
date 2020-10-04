@@ -6,7 +6,7 @@ export default (props: any) => {
     setValue(e.target.value);
   };
   return (
-    <div className="input-group mb-3">
+    <div className="input-group mb-3 mt-3">
       <input
         type="text"
         className="form-control"
