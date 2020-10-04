@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { Component } from 'react';
 import _ from 'lodash';
 import ReactPaginate from 'react-paginate';
 import { Data, DataDetails } from './interfaces/Data';
@@ -7,79 +7,110 @@ import Table from './components/Table';
 import DetailRowInfo from './components/DetailRowInfo';
 import ModeSelector from './components/ModeSelector';
 
-const App = () => {
-  const [data, setData] = useState<Data[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [sortDirection, setSortDirection] = useState('asc');
-  const [sortedField, setSortedField] = useState('');
-  const [row, setRow] = useState<DataDetails | null>(null);
-  const [isModeSelected, setMode] = useState(false);
+interface Props {}
+interface State {
+  data: Data[];
+  isLoading: boolean;
+  sortDirection: string;
+  sortedField: string;
+  row: DataDetails | null;
+  isModeSelected: boolean;
+}
 
-  const fetchData = async (url: string) => {
-    const response = await fetch(url);
-    const data = await response.json();
-
-    setData(data);
-    setIsLoading(false);
+export class App extends Component<Props, State> {
+  state = {
+    data: [],
+    isLoading: true,
+    sortDirection: 'asc',
+    sortedField: '',
+    row: null,
+    isModeSelected: false
   };
 
-  const onSort = (field: string) => {
+  fetchData = async (url: string) => {
+    const response = await fetch(url);
+    const data = await response.json();
+    this.setState({
+      data,
+      isLoading: false
+    });
+  };
+
+  onSort = (field: string) => {
+    const { data, sortDirection } = this.state;
     const dataForSorting = data.concat();
     const sortType = sortDirection === 'asc' ? 'desc' : 'asc';
     const orderedData = _.orderBy(dataForSorting, field, sortType);
-
-    setData(orderedData);
-    setSortedField(field);
-    setSortDirection(sortType);
+    this.setState({
+      data: orderedData,
+      isLoading: false,
+      sortedField: field,
+      sortDirection
+    });
   };
 
-  const onSelectRow = (row: DataDetails) => {
-    setRow(row);
+  onSelectRow = (row: DataDetails) =>
+    this.setState({
+      row
+    });
+
+  selectMode = (url: string) => {
+    this.setState({
+      isLoading: true,
+      isModeSelected: true
+    });
+
+    this.fetchData(url);
   };
 
-  const selectMode = (url: string) => {
-    setMode(true);
-    setIsLoading(true);
-    fetchData(url);
-  };
+  render() {
+    const {
+      row,
+      data,
+      isLoading,
+      sortedField,
+      sortDirection,
+      isModeSelected
+    } = this.state;
 
-  if (!isModeSelected) {
+    if (!isModeSelected) {
+      return (
+        <div className="container">
+          <ModeSelector onSelect={this.selectMode} />
+        </div>
+      );
+    }
+
     return (
-      <div className="container">
-        <ModeSelector onSelect={selectMode} />
-      </div>
+      <main className="container">
+        <div className="input-group mb-3">
+          <input
+            type="text"
+            className="form-control"
+            aria-label="search"
+            aria-describedby="basic-addon2"
+          />
+          <div className="input-group-append">
+            <button className="btn btn-outline-secondary" type="button">
+              Search
+            </button>
+          </div>
+        </div>
+        {isLoading ? (
+          <Loader />
+        ) : (
+          <Table
+            data={data}
+            onSort={this.onSort}
+            onSelectRow={this.onSelectRow}
+            sortDirection={sortDirection}
+            sortedField={sortedField}
+          />
+        )}
+        {row && <DetailRowInfo rowData={row} />}
+      </main>
     );
   }
-
-  return (
-    <main className="container">
-      <div className="input-group mb-3">
-        <input
-          type="text"
-          className="form-control"
-          aria-label="search"
-          aria-describedby="basic-addon2"
-        />
-        <div className="input-group-append">
-          <button className="btn btn-outline-secondary" type="button">
-            Search
-          </button>
-        </div>
-      </div>
-      {isLoading ? (
-        <Loader />
-      ) : (
-        <Table
-          data={data}
-          onSort={onSort}
-          onSelectRow={onSelectRow}
-          sortDirection={sortDirection}
-          sortedField={sortedField}
-        />
-      )}
-      {row && <DetailRowInfo rowData={row} />}
-    </main>
-  );
-};
+}
 
 export default App;

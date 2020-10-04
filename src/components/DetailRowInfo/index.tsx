@@ -1,10 +1,10 @@
 import React from 'react';
-import { DataDetails } from '../../interfaces/Data';
 
-export default (props: { rowData: DataDetails }) => (
+export default (props: { rowData: any }) => (
   <section>
     <p>
-      Выбран пользователь <b>Sue Corson</b>
+      Выбран пользователь{' '}
+      <b>{`${props.rowData.firstName} ${props.rowData.lastName}`}</b>
     </p>
     <p>
       Описание:
