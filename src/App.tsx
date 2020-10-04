@@ -15,6 +15,7 @@ interface State {
   sortedField: string;
   row: DataDetails | null;
   isModeSelected: boolean;
+  currentPage: number;
 }
 
 export class App extends Component<Props, State> {
@@ -24,7 +25,8 @@ export class App extends Component<Props, State> {
     sortDirection: 'asc',
     sortedField: '',
     row: null,
-    isModeSelected: false
+    isModeSelected: false,
+    currentPage: 0
   };
 
   fetchData = async (url: string) => {
@@ -63,6 +65,14 @@ export class App extends Component<Props, State> {
     this.fetchData(url);
   };
 
+  handlePageChange = (props: any) => {
+    console.log(props.selected);
+
+    this.setState({
+      currentPage: props.selected
+    });
+  };
+
   render() {
     const {
       row,
@@ -70,9 +80,12 @@ export class App extends Component<Props, State> {
       isLoading,
       sortedField,
       sortDirection,
-      isModeSelected
+      isModeSelected,
+      currentPage
     } = this.state;
-
+    const pageSize = 50;
+    const pageCount = 100;
+    const displayData = _.chunk(data, pageSize)[currentPage];
     if (!isModeSelected) {
       return (
         <div className="container">
@@ -100,13 +113,34 @@ export class App extends Component<Props, State> {
           <Loader />
         ) : (
           <Table
-            data={data}
+            data={displayData}
             onSort={this.onSort}
             onSelectRow={this.onSelectRow}
             sortDirection={sortDirection}
             sortedField={sortedField}
           />
         )}
+        {data.length > pageSize ? (
+          <ReactPaginate
+            previousLabel={'previous'}
+            nextLabel={'next'}
+            breakLabel={'...'}
+            breakClassName={'break-me'}
+            pageCount={20}
+            forcePage={currentPage}
+            marginPagesDisplayed={2}
+            pageRangeDisplayed={5}
+            onPageChange={this.handlePageChange}
+            containerClassName={'pagination'}
+            activeClassName={'active'}
+            pageClassName="page-item"
+            pageLinkClassName="page-link"
+            previousClassName="page-item"
+            nextClassName="page-item"
+            previousLinkClassName="page-link"
+            nextLinkClassName="page-link"
+          />
+        ) : null}
         {row && <DetailRowInfo rowData={row} />}
       </main>
     );
