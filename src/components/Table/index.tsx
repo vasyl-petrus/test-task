@@ -44,7 +44,10 @@ export default (props: any) => (
     </thead>
     <tbody>
       {props.data.map((item: Data, index: number) => (
-        <tr key={item.id + index} onClick={props.onSelectRow.bind(null, item)}>
+        <tr
+          key={`${item.id}${index + 1}`}
+          onClick={props.onSelectRow.bind(null, item)}
+        >
           <td>{item.id}</td>
           <td>{item.firstName}</td>
           <td>{item.lastName}</td>

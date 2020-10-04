@@ -6,6 +6,7 @@ import Loader from './components/Loader';
 import Table from './components/Table';
 import DetailRowInfo from './components/DetailRowInfo';
 import ModeSelector from './components/ModeSelector';
+import Search from './components/Search';
 
 interface Props {}
 interface State {
@@ -16,6 +17,7 @@ interface State {
   row: DataDetails | null;
   isModeSelected: boolean;
   currentPage: number;
+  search: string;
 }
 
 export class App extends Component<Props, State> {
@@ -26,7 +28,8 @@ export class App extends Component<Props, State> {
     sortedField: '',
     row: null,
     isModeSelected: false,
-    currentPage: 0
+    currentPage: 0,
+    search: ''
   };
 
   fetchData = async (url: string) => {
@@ -43,11 +46,12 @@ export class App extends Component<Props, State> {
     const dataForSorting = data.concat();
     const sortType = sortDirection === 'asc' ? 'desc' : 'asc';
     const orderedData = _.orderBy(dataForSorting, field, sortType);
+    debugger;
     this.setState({
       data: orderedData,
       isLoading: false,
       sortedField: field,
-      sortDirection
+      sortDirection: sortType
     });
   };
 
@@ -65,11 +69,28 @@ export class App extends Component<Props, State> {
     this.fetchData(url);
   };
 
-  handlePageChange = (props: any) => {
-    console.log(props.selected);
-
+  handlePageChange = (props: { selected: number }) => {
     this.setState({
       currentPage: props.selected
+    });
+  };
+
+  searchHandler = (search: string) => {
+    this.setState({ search, currentPage: 0 });
+  };
+
+  getFilteredData = () => {
+    const { data, search } = this.state;
+    if (!search) {
+      return data;
+    }
+
+    return data.filter((item: Data) => {
+      return (
+        item['firstName'].toLowerCase().includes(search.toLowerCase()) ||
+        item['lastName'].toLowerCase().includes(search.toLowerCase()) ||
+        item['email'].toLowerCase().includes(search.toLowerCase())
+      );
     });
   };
 
@@ -84,8 +105,10 @@ export class App extends Component<Props, State> {
       currentPage
     } = this.state;
     const pageSize = 50;
-    const pageCount = 100;
-    const displayData = _.chunk(data, pageSize)[currentPage];
+    const filteredData = this.getFilteredData();
+    const pageCount = Math.ceil(filteredData.length / pageSize);
+    const displayData = _.chunk(filteredData, pageSize)[currentPage];
+
     if (!isModeSelected) {
       return (
         <div className="container">
@@ -95,30 +118,20 @@ export class App extends Component<Props, State> {
     }
 
     return (
-      <main className="container">
-        <div className="input-group mb-3">
-          <input
-            type="text"
-            className="form-control"
-            aria-label="search"
-            aria-describedby="basic-addon2"
-          />
-          <div className="input-group-append">
-            <button className="btn btn-outline-secondary" type="button">
-              Search
-            </button>
-          </div>
-        </div>
+      <main className="container-fluid">
         {isLoading ? (
           <Loader />
         ) : (
-          <Table
-            data={displayData}
-            onSort={this.onSort}
-            onSelectRow={this.onSelectRow}
-            sortDirection={sortDirection}
-            sortedField={sortedField}
-          />
+          <>
+            <Search onSearch={this.searchHandler} />
+            <Table
+              data={displayData}
+              onSort={this.onSort}
+              onSelectRow={this.onSelectRow}
+              sortDirection={sortDirection}
+              sortedField={sortedField}
+            />
+          </>
         )}
         {data.length > pageSize ? (
           <ReactPaginate
@@ -126,7 +139,7 @@ export class App extends Component<Props, State> {
             nextLabel={'next'}
             breakLabel={'...'}
             breakClassName={'break-me'}
-            pageCount={20}
+            pageCount={pageCount}
             forcePage={currentPage}
             marginPagesDisplayed={2}
             pageRangeDisplayed={5}
