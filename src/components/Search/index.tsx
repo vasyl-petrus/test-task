@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 
-export default (props: any) => {
+interface Props {
+  onSearch: (search: string) => void;
+}
+
+export default (props: Props) => {
   const [value, setValue] = useState('');
-  const changeHandler = (e: any) => {
+  const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
   };
   return (

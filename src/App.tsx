@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import ReactPaginate from 'react-paginate';
-import { Data, DataDetails } from './interfaces/Data';
+import { Data } from './interfaces/Data';
 import Loader from './components/Loader';
 import Table from './components/Table';
 import DetailRowInfo from './components/DetailRowInfo';
@@ -15,7 +15,7 @@ interface State {
   isLoading: boolean;
   sortDirection: string;
   sortedField: string;
-  row: DataDetails | null;
+  row: Data | null;
   isModeSelected: boolean;
   currentPage: number;
   search: string;
@@ -47,7 +47,6 @@ export class App extends Component<Props, State> {
     const dataForSorting = data.concat();
     const sortType = sortDirection === 'asc' ? 'desc' : 'asc';
     const orderedData = _.orderBy(dataForSorting, field, sortType);
-    debugger;
     this.setState({
       data: orderedData,
       isLoading: false,
@@ -56,7 +55,7 @@ export class App extends Component<Props, State> {
     });
   };
 
-  onSelectRow = (row: DataDetails) =>
+  onSelectRow = (row: Data) =>
     this.setState({
       row
     });
@@ -70,15 +69,12 @@ export class App extends Component<Props, State> {
     this.fetchData(url);
   };
 
-  handlePageChange = (props: { selected: number }) => {
+  handlePageChange = (props: { selected: number }) =>
     this.setState({
       currentPage: props.selected
     });
-  };
 
-  searchHandler = (search: string) => {
-    this.setState({ search, currentPage: 0 });
-  };
+  searchHandler = (search: string) => this.setState({ search, currentPage: 0 });
 
   getFilteredData = () => {
     const { data, search } = this.state;
@@ -86,13 +82,13 @@ export class App extends Component<Props, State> {
       return data;
     }
 
-    return data.filter((item: Data) => {
-      return (
+    return data.filter(
+      (item: Data) =>
         item['firstName'].toLowerCase().includes(search.toLowerCase()) ||
         item['lastName'].toLowerCase().includes(search.toLowerCase()) ||
-        item['email'].toLowerCase().includes(search.toLowerCase())
-      );
-    });
+        item['email'].toLowerCase().includes(search.toLowerCase()) ||
+        item['phone'].toString().toLowerCase().includes(search.toLowerCase())
+    );
   };
 
   render() {
@@ -136,8 +132,8 @@ export class App extends Component<Props, State> {
         )}
         {data.length > pageSize ? (
           <ReactPaginate
-            previousLabel={'previous'}
-            nextLabel={'next'}
+            previousLabel={'Previous'}
+            nextLabel={'Next'}
             breakLabel={'...'}
             breakClassName={'break-me'}
             pageCount={pageCount}
